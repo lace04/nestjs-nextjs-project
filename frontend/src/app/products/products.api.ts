@@ -4,8 +4,16 @@ export async function getProducts() {
 }
 
 export async function getProduct(id: number) {
-  const data = await fetch(`http://localhost:4000/api/products/${id}`);
-  return data.json();
+  const res = await fetch(`http://localhost:4000/api/products/${id}`);
+  
+  if (!res.ok) {
+    if (res.status === 404) {
+      return null;
+    }
+    throw new Error(`Failed to fetch product: ${res.statusText}`);
+  }
+  
+  return res.json();
 }
 
 export async function createProduct(productData: any) {
@@ -19,6 +27,17 @@ export async function createProduct(productData: any) {
   const data = await res.json();
   // return data;
   console.log(data);
+}
+
+export async function updateProduct(id: number, productData: any) {
+  const res = await fetch(`http://localhost:4000/api/products/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(productData),
+  });
+  return res.json();
 }
 
 export async function deleteProduct(id: number) {

@@ -9,6 +9,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
+import { redirect } from 'next/navigation';
 import { getProduct } from '../products.api';
 
 interface ProductPageProps {
@@ -17,11 +18,17 @@ interface ProductPageProps {
 
 async function ProductPage({ params }: ProductPageProps) {
   const { id } = await params;
-  const product = await getProduct(parseInt(id));
+  
+  try {
+    const product = await getProduct(parseInt(id));
+    
+    if (!product) {
+      redirect('/');
+    }
 
-  return (
-    <>
-      <div className='mb-6'>
+    return (
+      <>
+        <div className='mb-6'>
         <Link
           href='/'
           className={buttonVariants({ variant: 'outline', size: 'sm' })}
@@ -37,10 +44,10 @@ async function ProductPage({ params }: ProductPageProps) {
             <img
               src={product.image}
               alt={product.name}
-              className='max-w-full max-h-[500px] object-contain rounded-lg'
+              className='max-w-full max-h-125 object-contain rounded-lg'
             />
           ) : (
-            <div className='w-full h-[500px] flex items-center justify-center'>
+            <div className='w-full h-125 flex items-center justify-center'>
               <p className='text-muted-foreground text-xl'>Sin imagen</p>
             </div>
           )}
@@ -92,6 +99,9 @@ async function ProductPage({ params }: ProductPageProps) {
       </div>
     </>
   );
+  } catch (error) {
+    redirect('/');
+  }
 }
 
 export default ProductPage;
