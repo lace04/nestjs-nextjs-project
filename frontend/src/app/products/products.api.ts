@@ -1,3 +1,16 @@
+
+export interface Product {
+  id: number;
+  name: string;
+  description?: string;
+  price: number;
+  image?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type CreateProductInput = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>;
+
 export async function getProducts() {
   const data = await fetch('http://localhost:4000/api/products');
   return data.json();
@@ -16,7 +29,7 @@ export async function getProduct(id: number) {
   return res.json();
 }
 
-export async function createProduct(productData: any) {
+export async function createProduct(productData: CreateProductInput) {
   const res = await fetch('http://localhost:4000/api/products', {
     method: 'POST',
     headers: {
@@ -29,7 +42,7 @@ export async function createProduct(productData: any) {
   console.log(data);
 }
 
-export async function updateProduct(id: number, productData: any) {
+export async function updateProduct(id: number, productData: Partial<CreateProductInput>) {
   const res = await fetch(`http://localhost:4000/api/products/${id}`, {
     method: 'PATCH',
     headers: {

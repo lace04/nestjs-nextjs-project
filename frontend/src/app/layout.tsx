@@ -28,10 +28,18 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background selection:bg-primary/20`}
       >
-        <main className='container mx-auto py-8'>{children}</main>
-        <Toaster />
+        {/* Subtle Background Texture */}
+        <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-60 pointer-events-none" />
+        <div className="fixed inset-0 -z-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03] pointer-events-none grayscale" />
+        
+        <main className='container mx-auto px-4 py-12 md:px-6 lg:px-8 max-w-7xl min-h-screen'>
+          <div className="relative z-0">
+            {children}
+          </div>
+        </main>
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

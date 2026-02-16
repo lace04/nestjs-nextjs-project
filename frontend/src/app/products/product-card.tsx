@@ -22,14 +22,21 @@ import {
 import { Trash2, Edit } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { deleteProduct } from './products.api';
+import { deleteProduct, type Product } from './products.api';
 import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 
-function productCard({ product }: any) {
+interface ProductCardProps {
+  product: Product;
+}
+
+function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
 
   const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     setShowDeleteAlert(true);
   };
@@ -39,83 +46,88 @@ function productCard({ product }: any) {
       await deleteProduct(product.id);
       toast.success('Producto eliminado correctamente');
       router.refresh();
-    } catch (error) {
+    } catch {
       toast.error('Error al eliminar el producto');
     }
   };
 
-  const handleCardClick = () => {
-    router.push(`/products/${product.id}`);
-  };
-
   const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     router.push(`/products/${product.id}/edit`);
   };
 
   return (
     <>
-      <Card key={product.id} className='flex flex-col h-full'>
-        <div onClick={handleCardClick} className='cursor-pointer flex-1 flex flex-col'>
-          <CardHeader className='flex-none'>
-            <CardTitle className='hover:text-primary transition-colors'>
+      <Card className='flex flex-col h-full group transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden border-border/50 hover:border-primary/30'>
+        <Link href={`/products/${product.id}`} className='flex-1 flex flex-col'>
+          <CardHeader className='flex-none pb-2'>
+            <CardTitle className='group-hover:text-primary transition-colors text-xl font-bold'>
               {product.name}
             </CardTitle>
-            <CardDescription className='min-h-10 line-clamp-2'>
+            <CardDescription className='min-h-10 line-clamp-2 text-sm leading-relaxed'>
               {product.description || '\u00A0'}
             </CardDescription>
           </CardHeader>
-          <CardContent className='flex-1 flex items-start'>
-            <div className='w-full h-48 flex items-center justify-center bg-muted rounded-md hover:bg-muted/80 transition-colors'>
+          <CardContent className='flex-1 flex items-start p-4'>
+            <div className='w-full h-48 flex items-center justify-center bg-muted/30 rounded-lg overflow-hidden transition-all duration-500 group-hover:bg-muted/50 relative'>
               {product.image ? (
-                <img
+                <Image
                   src={product.image}
                   alt={product.name}
-                  className='w-full h-full object-cover rounded-md'
+                  fill
+                  className='object-cover transition-transform duration-700 group-hover:scale-110'
                 />
               ) : (
-                <p className='text-muted-foreground'>Sin imagen</p>
+                <p className='text-muted-foreground font-medium'>Sin imagen</p>
               )}
             </div>
           </CardContent>
-        </div>
-        <CardFooter className='flex-none mt-auto'>
+        </Link>
+        <CardFooter className='flex-none mt-auto p-4 bg-muted/5 border-t border-border/10'>
           <div className='flex justify-between items-center w-full gap-2'>
-            <p className='text-lg font-bold'>${product.price}</p>
+            <p className='text-2xl font-black text-primary'>${product.price}</p>
             <div className='flex gap-2'>
               <Button
-                className='cursor-pointer'
-                variant='outline'
+                variant='ghost'
                 size='icon'
                 onClick={handleEdit}
+                className='hover:bg-primary/10 hover:text-primary transition-colors'
+                title='Editar'
               >
                 <Edit className='h-4 w-4' />
               </Button>
               <Button
-                className='cursor-pointer'
-                variant='destructive'
+                variant='ghost'
                 size='icon'
                 onClick={handleDelete}
+                className='hover:bg-destructive/10 hover:text-destructive transition-colors'
+                title='Eliminar'
               >
                 <Trash2 className='h-4 w-4' />
               </Button>
-              <Button className='cursor-pointer'>Comprar</Button>
+              <Button className='font-bold shadow-lg shadow-primary/20 transition-all hover:shadow-primary/40 active:scale-95'>
+                Comprar
+              </Button>
             </div>
           </div>
         </CardFooter>
       </Card>
 
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent>
+        <AlertDialogContent className='rounded-2xl border-none shadow-2xl'>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar producto?</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Estás seguro de eliminar "{product.name}"? Esta acción no se puede deshacer.
+            <AlertDialogTitle className='text-2xl font-bold'>¿Eliminar producto?</AlertDialogTitle>
+            <AlertDialogDescription className='text-muted-foreground'>
+              ¿Estás seguro de eliminar <span className='font-bold text-foreground'>&quot;{product.name}&quot;</span>? Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className='bg-destructive text-destructive-foreground hover:bg-destructive/90'>
+          <AlertDialogFooter className='gap-2 sm:gap-0 font-medium'>
+            <AlertDialogCancel className='rounded-xl border-border/50 hover:bg-muted'>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete} 
+              className='bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl px-6'
+            >
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -125,4 +137,4 @@ function productCard({ product }: any) {
   );
 }
 
-export default productCard;
+export default ProductCard;
