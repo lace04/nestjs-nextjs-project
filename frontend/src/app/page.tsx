@@ -1,15 +1,8 @@
 import Link from 'next/link';
-import { buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 
 import { getProducts } from './products/products.api';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
+import ProductCard from './products/product-card';
 
 async function HomePage() {
   const products = await getProducts();
@@ -17,7 +10,7 @@ async function HomePage() {
   return (
     <>
       <div className='space-y-4 flex justify-between items-center'>
-        <h1 className='text-4xl font-bold'>NextNestApp</h1>
+        <h1 className='text-4xl font-bold'>App</h1>
         <Link
           href='/products/new'
           className={buttonVariants({ variant: 'outline' })}
@@ -26,26 +19,9 @@ async function HomePage() {
         </Link>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4'>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 items-stretch'>
         {products.map((product: any) => (
-          <Card key={product.id}>
-            <CardHeader>
-              <CardTitle>{product.name}</CardTitle>
-              <CardDescription>{product.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {product.image && (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className='w-full h-48 object-cover rounded-md'
-                />
-              )}
-            </CardContent>
-            <CardFooter>
-              <p className='text-lg font-bold'>${product.price}</p>
-            </CardFooter>
-          </Card>
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </>
