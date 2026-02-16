@@ -56,6 +56,6 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 4000;
   await app.listen(port);
-  logger.log(`✓ Application running on http://localhost:${port}/api`);
+  logger.log(`Application running on http://localhost:${port}/api`);
 }
 bootstrap();

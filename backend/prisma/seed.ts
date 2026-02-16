@@ -7,7 +7,7 @@ async function main() {
 
   // Clean existing data
   await prisma.product.deleteMany({});
-  console.log('✓ Cleared existing products');
+  console.log('Cleared existing products');
 
   // Create sample products
   const products = await prisma.product.createMany({
@@ -63,8 +63,8 @@ async function main() {
     ],
   });
 
-  console.log(`✓ Created ${products.count} products`);
-  console.log('✅ Database seeding completed successfully!');
+  console.log(`Created ${products.count} products`);
+  console.log('Database seeding completed successfully!');
 }
 
 main()
