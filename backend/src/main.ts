@@ -8,6 +8,7 @@ import {
   PrismaExceptionFilter,
   PrismaValidationExceptionFilter,
 } from './common/filters/prisma-exception.filter';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -52,6 +53,7 @@ async function bootstrap() {
   app.useGlobalFilters(
     new PrismaValidationExceptionFilter(),
     new PrismaExceptionFilter(),
+    new AllExceptionsFilter(),
   );
 
   const port = process.env.PORT ?? 4000;
