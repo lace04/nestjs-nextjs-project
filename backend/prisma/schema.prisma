@@ -1,24 +1,20 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 model Product {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
   description String?
-  price       Float     @default(0)
+  price       Float
   image       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  isActive    Boolean   @default(true)  // Campo para indicar si el producto está activo o no
-  deletedAt   DateTime?                // Campo para manejar soft delete (eliminación lógica)
-
-  @@index([price])                     // Índice en el campo "price" para acelerar búsquedas por precio
-  @@index([createdAt])                 // Índice en el campo "createdAt" para acelerar búsquedas por fecha de creación
-  @@index([isActive])                  // Índice en el campo "isActive" para filtrar productos activos rápidamente
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

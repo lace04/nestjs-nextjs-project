@@ -1,81 +1,57 @@
-import { Injectable, NotFoundException, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
   constructor(private prismaService: PrismaService) {}
 
   async create(createProductDto: CreateProductDto) {
-    try {
-      return await this.prismaService.product.create({
-        data: createProductDto,
-      });
-    } catch (error) {
-      this.handlePrismaError(error, 'create');
-    }
-    throw new InternalServerErrorException();
+    return await this.prismaService.product.create({
+      data: createProductDto,
+    });
   }
 
-  async findAll() {
-    return await this.prismaService.product.findMany();
+  findAll(skip: number = 0, take: number = 10) {
+    return this.prismaService.product.findMany({
+      skip,
+      take,
+      orderBy: { id: 'asc' },
+    });
   }
 
   async findOne(id: number) {
     const productFound = await this.prismaService.product.findUnique({
-      where: {
-        id: id,
-      },
+      where: { id },
     });
 
     if (!productFound) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      throw new NotFoundException(`Product with id ${id} not found`);
     }
 
     return productFound;
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    await this.findOne(id);
+    const productFound = await this.findOne(id);
 
-    try {
-      return await this.prismaService.product.update({
-        where: {
-          id: id,
-        },
-        data: updateProductDto,
-      });
-    } catch (error) {
-      this.handlePrismaError(error, 'update', id);
+    if (!productFound) {
+      throw new NotFoundException(`Product with id ${id} not found`);
     }
+
+    return this.prismaService.product.update({
+      where: { id },
+      data: updateProductDto,
+    });
   }
 
   async remove(id: number) {
-    await this.findOne(id);
-
-    try {
-      return await this.prismaService.product.delete({
-        where: {
-          id,
-        },
-      });
-    } catch (error) {
-      this.handlePrismaError(error, 'delete', id);
-    }
-  }
-
-  // Método privado para manejar errores de Prisma
-  private handlePrismaError(error: any, operation: string, id?: number) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
-        throw new ConflictException('Product with the same name already exists');
-      }
-      if (error.code === 'P2025') {
-        throw new NotFoundException(`Product with ID ${id} not found during ${operation}`);
-      }
-    }
-    throw error;
+    return await this.prismaService.product.delete({
+      where: { id },
+    });
   }
 }

@@ -1,20 +1,19 @@
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsPositive } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsPositive, MinLength } from 'class-validator';
 
 export class CreateProductDto {
-  @IsNotEmpty()
   @IsString()
+  @MinLength(1, { message: 'Product name must not be empty' })
   name: string;
 
   @IsOptional()
   @IsString()
-  description?: string;
+  description?: string | null;
 
-  @IsNotEmpty()
   @IsNumber()
-  @IsPositive()
+  @IsPositive({ message: 'Price must be a positive number' })
   price: number;
 
   @IsOptional()
   @IsString()
-  image?: string;
+  image?: string | null;
 }

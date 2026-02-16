@@ -1,39 +1,61 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import {
+  PrismaExceptionFilter,
+  PrismaValidationExceptionFilter,
+} from './common/filters/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
 
-  // Establecer un prefijo global para todas las rutas de la API
-  app.setGlobalPrefix('api');
-
-  // Habilitar CORS para permitir peticiones desde localhost:3000
+  // CORS
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    credentials: true,
   });
 
-  // Configuración global del ValidationPipe para manejar validaciones en DTOs
+  // Global prefix
+  app.setGlobalPrefix('api');
+
+  // Swagger configuration
+  const config = new DocumentBuilder()
+    .setTitle('NestJS Products API')
+    .setDescription('API for managing products with NestJS and Prisma')
+    .setVersion('1.0.0')
+    .addTag('products')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
+
+  // Global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,           // Elimina propiedades no declaradas en el DTO
-      forbidNonWhitelisted: true, // Lanza un error si hay propiedades no permitidas
-      transform: true,           // Transforma los payloads JSON en instancias de las clases DTO
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
-  // Configuración de Swagger para documentación de la API
-  const config = new DocumentBuilder()
-    .setTitle('Products example')
-    .setDescription('The products API description')
-    .setVersion('1.0')
-    .addTag('Products')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  // Global interceptors
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
-  await app.listen(4000);
+  // Global exception filters
+  app.useGlobalFilters(
+    new PrismaValidationExceptionFilter(),
+    new PrismaExceptionFilter(),
+  );
+
+  const port = process.env.PORT ?? 4000;
+  await app.listen(port);
+  logger.log(`✓ Application running on http://localhost:${port}/api`);
 }
-
 bootstrap();
